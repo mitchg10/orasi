@@ -29,35 +29,35 @@ def find_bench(bench, message, sim_data):
 	current_mph = int(message, 16)/128. # Get the current MPH (change 16 to 0 if 0x is included in message string)
 	current_time = time.time() # Get the current time
 	# Now, update based off the bench we passed in
-    for i in range(len(sim_data.hilDataVec)):
-        bench_str = 'C{}'.format(i)
-        if bench == bench_str:
-            set_bench_vars(sim_data, i, current_mph, current_time)
+	for i in range(len(sim_data.hilDataVec)):
+		bench_str = 'C{}'.format(i)
+		if bench == bench_str:
+			set_bench_vars(sim_data, i, current_mph, current_time)
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A CSV FILE #################################
 
 def csv_reader():
 
 	# Create a simData
-    sim_data = sim_widget.guiData.simData()
+	sim_data = sim_widget.guiData.simData()
 
-    with open('sample_data.csv') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter=',')
-        line_count = 0
-        for row in csv_reader:
-            if line_count != 0:
+	with open('sample_data.csv') as csv_file:
+		csv_reader = csv.reader(csv_file, delimiter=',')
+		line_count = 0
+		for row in csv_reader:
+			if line_count != 0:
 				bench = row[9]
 				message = row[23]
-                find_bench(bench, message, sim_data)
-            line_count += 1
-            sleep(0.1)
+				find_bench(bench, message, sim_data)
+				line_count += 1
+				sleep(0.1)
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A SERIAL CONNECTION #################################
 
 def serialReader():
 
 	# Create a simData
-    sim_data = sim_widget.guiData.simData()
+	sim_data = sim_widget.guiData.simData()
 
 	# Now, we open the serial connection to the adapters
 	ser = serial.Serial(port='/dev/ttyUSB0',
@@ -89,25 +89,25 @@ def serialReader():
 ################## FOR RECEIVING DATA FROM THE QUEUE ############################
 
 def dataReceiver():
-    while True:
-        # Examples of pulling data
-        hil1_mph = q.get()[0].hilCurMPH
-        hil2_time = q.get()[1].hilLifeTime
-        # Update the GUI - THIS WILL HAVE TO CHANGE
-        # sw.dataUpdate(data)
-        print('Sample HIL1 MPH: %f'%hil1_mph)
-        print('Sample HIL2 Total Time: %f'%hil2_time)
-        q.task_done()
+	while True:
+		# Examples of pulling data
+		hil1_mph = q.get()[0].hilCurMPH
+		hil2_time = q.get()[1].hilLifeTime
+		# Update the GUI - THIS WILL HAVE TO CHANGE
+		# sw.dataUpdate(data)
+		print('Sample HIL1 MPH: %f'%hil1_mph)
+		print('Sample HIL2 Total Time: %f'%hil2_time)
+		q.task_done()
 
 ################## MAIN ######################
 
 def main():
-    threading.Thread(target=serialReader, daemon=True).start()
-    app = QApplication(sys.argv)
-    sw = sim_widget.SIMWidget('H')
-    sw.show()
-    threading.Thread(target=dataReceiver, daemon=True).start()
-    sys.exit(app.exec_())
+	threading.Thread(target=serialReader, daemon=True).start()
+	app = QApplication(sys.argv)
+	sw = sim_widget.SIMWidget('H')
+	sw.show()
+	threading.Thread(target=dataReceiver, daemon=True).start()
+	sys.exit(app.exec_())
 
 if __name__ == '__main__':
-    main()
+	main()
