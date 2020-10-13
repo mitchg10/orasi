@@ -34,7 +34,25 @@ def find_bench(bench, message, sim_data):
         if bench == bench_str:
             set_bench_vars(sim_data, i, current_mph, current_time)
 
-###################### FOR SENDING DATA TO THE QUEUE #################################
+###################### FOR SENDING DATA TO THE QUEUE FROM A CSV FILE #################################
+
+def csv_reader():
+
+	# Create a simData
+    sim_data = sim_widget.guiData.simData()
+
+    with open('sample_data.csv') as csv_file:
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        line_count = 0
+        for row in csv_reader:
+            if line_count != 0:
+				bench = row[9]
+				message = row[23]
+                find_bench(bench, message, sim_data)
+            line_count += 1
+            sleep(0.1)
+
+###################### FOR SENDING DATA TO THE QUEUE FROM A SERIAL CONNECTION #################################
 
 def serialReader():
 
