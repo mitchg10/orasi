@@ -2,6 +2,8 @@ from enum import Enum
 
 import sim_widget
 
+numHILs = 6
+
 class Status(Enum):
     RUNNING = 0
     STANDBY = 1
@@ -10,6 +12,7 @@ class Status(Enum):
 class hilData():
     def __init__(self):
         self.status = Status.STANDBY
+        self.hilCurMPH = 0
         self.hilCurDistance = 0
         self.hilCurTime = 0
         self.hilLifeDistance = 0
@@ -24,6 +27,6 @@ class simData():
         self.hilDataVec = []
 
         #dw about numHILs, assume it's set to 6 if you need
-        for i in range (1, sim_widget.numHILs + 1): 
+        for i in range (0, numHILs): 
             hData = hilData()
             self.hilDataVec.append(hData)

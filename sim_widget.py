@@ -17,8 +17,6 @@ from time import sleep
 import hil_widget
 import guiData
 
-numHILs = 6
-
 class SIMWidget(QWidget):
     def __init__(self, orientation):
         super().__init__()
@@ -39,7 +37,7 @@ class SIMWidget(QWidget):
 
             self.hilVec = []
 
-            for i in range (1, numHILs + 1):
+            for i in range (1, guiData.numHILs + 1):
                 hil = hil_widget.HILWidget(str(i))
                 self.hilVec.append(hil)
                 layout.addWidget(hil)
@@ -67,22 +65,22 @@ class SIMWidget(QWidget):
             topLayout.addWidget(self.time, 0, 1)
             layout.addLayout(topLayout, 0, 0, 1, 0)
 
-            if numHILs % 3 == 0: totalRows = int(numHILs / 3)
-            else: totalRows = int(numHILs / 3) + 1
+            if guiData.numHILs % 3 == 0: totalRows = int(guiData.numHILs / 3)
+            else: totalRows = int(guiData.numHILs / 3) + 1
 
             self.hilVec = []
 
             n = 1
             for i in range (0, totalRows):
                 for j in range (0, 3):
-                    if n <= numHILs:
+                    if n <= guiData.numHILs:
                         hil = hil_widget.HILWidget(str(n))
                         self.hilVec.append(hil)
                         layout.addWidget(hil, i + 1, j)
                     n = n + 1
                 
             self.userInput = QLineEdit()
-            layout.addWidget(self.userInput, totalRows + 1, 0, totalRows + 1, 2)
+            #layout.addWidget(self.userInput, totalRows + 1, 0, totalRows + 1, 2)
 
             self.setLayout(layout)
             self.setWindowTitle("SIMformation Widget")
@@ -108,17 +106,18 @@ class SIMWidget(QWidget):
 
     def dataUpdate(self, data):
         #print("check: " , data.test)
-        self.distance.setText(data.totDistance + " miles")
-        self.time.setText(data.totTime + " hours")
+        self.distance.setText(str(data.totDistance) + " miles")
+        self.time.setText(str(data.totTime) + " hours")
 
-        for i in range(1, numHILS + 1):
+        for i in range(0, guiData.numHILs):
+            self.hilVec[i].speed.setText(str(data.hilDataVec[i].hilCurMPH))
             self.hilVec[i].curDistance.setText(str(data.hilDataVec[i].hilCurDistance))
             self.hilVec[i].curTime.setText(str(data.hilDataVec[i].hilCurTime))
             self.hilVec[i].lifeDistance.setText(str(data.hilDataVec[i].hilLifeDistance))
             self.hilVec[i].lifeTime.setText(str(data.hilDataVec[i].hilLifeTime))
-            if data.status == Status.STANDBY:
+            if data.hilDataVec[i].status == guiData.Status.STANDBY:
                 self.hilVec[i].changeBackground('b')
-            elif data.status == Status.RUNNING:
+            elif data.hilDataVec[i].status == guiData.Status.RUNNING:
                 self.hilVec[i].changeBackground('g')
 
     def changeColor(self):
@@ -127,7 +126,7 @@ class SIMWidget(QWidget):
 
         hilNumCheck = ""
 
-        for i in range(1, numHILs + 1):
+        for i in range(1, guiData.numHILs + 1):
             hilNumCheck = hilNumCheck + str(i)
 
         chars = set(hilNumCheck)

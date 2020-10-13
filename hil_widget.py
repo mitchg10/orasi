@@ -19,6 +19,7 @@ class HILWidget(QWidget):
         else:
             self.HILnum = QLabel(num)
 
+        self.speed = QLabel("0")
         self.curDistance = QLabel("0")
         self.curTime = QLabel("0")
         self.lifeDistance = QLabel("0")
@@ -27,6 +28,7 @@ class HILWidget(QWidget):
         lifeQL = QLabel("lifetime")
         dUnit = QLabel("miles")
         tUnit = QLabel("hours")
+        sUnit = QLabel("mph")
 
         layout = QGridLayout()
 
@@ -37,8 +39,10 @@ class HILWidget(QWidget):
         layout.addWidget(self.curTime, 2, 1)
         layout.addWidget(self.lifeDistance, 1, 2)
         layout.addWidget(self.lifeTime, 2, 2)
+        layout.addWidget(self.speed, 3, 1)
         layout.addWidget(dUnit, 1, 3)
         layout.addWidget(tUnit, 2, 3)
+        layout.addWidget(sUnit, 3, 3)
         self.setLayout(layout)
 
         #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(255, 255, 255, 95); } QLabel{ color: white; font: 18px }")
