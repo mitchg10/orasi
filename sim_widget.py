@@ -41,7 +41,7 @@ class SIMWidget(QWidget):
                 hil = hil_widget.HILWidget(str(i))
                 self.hilVec.append(hil)
                 layout.addWidget(hil)
-                
+
             self.userInput = QLineEdit()
             layout.addWidget(self.userInput)
 
@@ -78,7 +78,7 @@ class SIMWidget(QWidget):
                         self.hilVec.append(hil)
                         layout.addWidget(hil, i + 1, j)
                     n = n + 1
-                
+
             self.userInput = QLineEdit()
             #layout.addWidget(self.userInput, totalRows + 1, 0, totalRows + 1, 2)
 
@@ -91,7 +91,7 @@ class SIMWidget(QWidget):
         background = QPixmap("/home/pi/Documents/Orasi/matteo-bernardis-QpIayO5KIRE-unsplash.jpg")
         background = background.scaled(self.size(), Qt.IgnoreAspectRatio, Qt.FastTransformation)
         palette = QPalette()
-        palette.setBrush(QPalette.Window, QBrush(background))                        
+        palette.setBrush(QPalette.Window, QBrush(background))
         self.setPalette(palette)
 
         #self.initUI()
@@ -106,8 +106,8 @@ class SIMWidget(QWidget):
 
     def dataUpdate(self, data):
         #print("check: " , data.test)
-        self.distance.setText(str(data.totDistance) + " miles")
-        self.time.setText(str(data.totTime) + " hours")
+        self.distance.setText(('%.2f'%data.totDistance) + " miles")
+        self.time.setText(('%.2f'%data.totTime) + " hours")
 
         for i in range(0, guiData.numHILs):
             self.hilVec[i].speed.setText(('%.2f'%data.hilDataVec[i].hilCurMPH))
@@ -160,5 +160,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
