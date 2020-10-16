@@ -12,25 +12,40 @@ import sim_widget
 
 q = queue.Queue()
 
+# def set_bench_vars(sim_data, bench_number, new_mph, new_time):
+# 	print("check1")
+# 	sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
+# 	if sim_data.hilDataVec[bench_number].hilCurTime == 0.0:
+# 		sim_data.hilDataVec[bench_number].hilCurTime = new_time
+# 		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
+# 	else:
+# 		sim_data.hilDataVec[bench_number].hilCurTime = new_time - sim_data.hilDataVec[bench_number].hilCurTime # space between the last message and the current
+# 		sim_data.hilDataVec[bench_number].hilLifeTime += sim_data.hilDataVec[bench_number].hilCurTime # adding the time_space to the total_time
+# 		prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH # storing the previous MPH
+# 		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph # getting the new MPH
+# 		sim_data.hilDataVec[bench_number].hilCurDistance += (sim_data.hilDataVec[bench_number].hilCurTime*(prev_mph+new_mph)/2) # using trap rule to append to the total distanc
+
 def set_bench_vars(sim_data, bench_number, new_mph, new_time):
-	print("check1")
+	# Get previous data fields
+	prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH
+	prev_time = sim_data.hilDataVec[bench_number].hilCurTime
+	# Set new mph and times
 	sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
-	if sim_data.hilDataVec[bench_number].hilCurTime == 0.0:
-		sim_data.hilDataVec[bench_number].hilCurTime = new_time
-		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
-	else:
-		sim_data.hilDataVec[bench_number].hilCurTime = new_time - sim_data.hilDataVec[bench_number].hilCurTime # space between the last message and the current
-		sim_data.hilDataVec[bench_number].hilLifeTime += sim_data.hilDataVec[bench_number].hilCurTime # adding the time_space to the total_time
-		prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH # storing the previous MPH
-		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph # getting the new MPH
-		sim_data.hilDataVec[bench_number].hilCurDistance += (sim_data.hilDataVec[bench_number].hilCurTime*(prev_mph+new_mph)/2) # using trap rule to append to the total distanc
+	sim_data.hilDataVec[bench_number].hilCurTime = new_time
+	# Set new distances and append time
+	sim_data.hilDataVec[bench_number].hilLifeTime += (new_time - prev_time)
+	sim_data.hilDataVec[bench_number].hilCurDistance += ((new_time - prev_time)*(prev_mph + new_mph)/2)
+	sim_data.hilDataVec[bench_number].hilLifeDistance += sim_data.hilDataVec[bench_number].hilCurDistance
+	# Add to overall totals
+	sim_data.totDistance += sim_data.hilDataVec[bench_number].hilCurDistance
+	sim_data.totTime += (new_time - prev_time)
 
 # This updates the respective bench based off the bench field
-def find_bench(bench, message, sim_data):
+def find_bench(bench, abs_time, speed, sim_data):
 	print("check2")
-	current_mph = int(message)
+	current_mph = float(speed)
 	# current_mph = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
-	current_time = time.time() # Get the current time
+	current_time = float(abs_time) # Get the current time
 	# Now, update based off the bench we passed in
 	for i in range(1, sim_widget.guiData.numHILs + 1):
 		bench_str = 'C{}'.format(i)
@@ -49,15 +64,14 @@ def csv_reader():
 		line_count = 0
 		for row in csv_reader:
 			if line_count != 0:
+				abs_time = row[1]
 				bench = row[9]
-				message = row[23]
-				find_bench(bench, message, sim_data)
+				speed = row[23]
+				find_bench(bench, abs_time, speed, sim_data)
 				q.put(sim_data) # Add to queue
 			line_count += 1
 			sleep(1)
 			print("check csv" , row[0])
-			
-			
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A SERIAL CONNECTION #################################
 
@@ -90,7 +104,6 @@ def serialReader():
 				find_bench(bench, message, sim_data) # Now, update the benches using the update_benches() function above
 				q.put(sim_data) # Add to queue
 		readText = ser.readline() # Once we've updated, read in the next line
-		
 
 	ser.close() # close the connection when we are completed
 
@@ -98,23 +111,15 @@ def serialReader():
 
 def dataReceiver():
 	while True:
-		# Examples of pulling data
-		# hil1_mph = q.get().hilDataVec[0].hilCurMPH
-		# hil2_time = q.get().hilDataVec[1].hilLifeTime
-		# Update the GUI - THIS WILL HAVE TO CHANGE
-		# sw.dataUpdate(data)
-		# if not q.empty():
 		data = q.get()
 		sw.dataUpdate(data)
-		# print('Sample HIL1 MPH: %f'%hil1_mph)
-		# print('Sample HIL2 Total Time: %f'%hil2_time)
 		q.task_done()
 
 ################## MAIN ######################
 
-def main():	
+def main():
 	app = QApplication(sys.argv)
-	global sw 
+	global sw
 	sw = sim_widget.SIMWidget('H')
 	sw.show()
 
@@ -122,7 +127,6 @@ def main():
 	# threading.Thread(target=serialReader, daemon=True).start()
 
 	threading.Thread(target=dataReceiver, daemon=True).start()
-	# q.join()
 	sys.exit(app.exec_())
 
 if __name__ == '__main__':
