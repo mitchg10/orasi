@@ -18,7 +18,9 @@ class HILWidget(QWidget):
             self.HILnum = QLabel("NA")
         else:
             self.HILnum = QLabel(num)
-
+        
+        self.color = 'w'
+        
         self.speed = QLabel("0")
         self.curDistance = QLabel("0")
         self.curTime = QLabel("0")
@@ -75,23 +77,25 @@ class HILWidget(QWidget):
 
 
     def changeBackground(self, color):
-        if color == 'r':
-            styleColor = "252, 87, 45, 90"
-        elif color == 'g':
-            styleColor = "71, 156, 89, 90"
-        elif color == 'y':
-            styleColor = "255, 201, 101, 90"
-        elif color == 'h':
-            styleColor = "109, 113, 117, 90"
-        elif color == 'b':
-            styleColor = "0, 0, 0, 90"
-        elif color == 't':
-            styleColor = "0, 0, 0, 0"
-        else:
-            return
+        if not color == self.color: 
+            if color == 'r':
+                styleColor = "252, 87, 45, 90"
+            elif color == 'g':
+                styleColor = "71, 156, 89, 90"
+            elif color == 'y':
+                styleColor = "255, 201, 101, 90"
+            elif color == 'h':
+                styleColor = "109, 113, 117, 90"
+            elif color == 'b':
+                styleColor = "0, 0, 0, 90"
+            elif color == 't':
+                styleColor = "0, 0, 0, 0"
+            else:
+                return
 
-        #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
-        self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
+            #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
+            self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
+            self.color = color    
         
         # self.style().unpolish(self)
         # self.style().polish(self)

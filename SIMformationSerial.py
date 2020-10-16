@@ -15,20 +15,21 @@ q = queue.Queue()
 def set_bench_vars(sim_data, bench_number, new_mph, new_time):
 	print("check1")
 	sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
-	# if sim_data.hilDataVec[bench_number].hilCurTime == 0.0:
-	# 	# sim_data.hilDataVec[bench_number].hilCurTime = new_time
-	# 	sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
-	# else:
-	# 	sim_data.hilDataVec[bench_number].hilCurTime = new_time - sim_data.hilDataVec[bench_number].hilCurTime # space between the last message and the current
-	# 	sim_data.hilDataVec[bench_number].hilLifeTime += sim_data.hilDataVec[bench_number].hilCurTime # adding the time_space to the total_time
-	# 	prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH # storing the previous MPH
-	# 	sim_data.hilDataVec[bench_number].hilCurMPH = new_mph # getting the new MPH
-	# 	sim_data.hilDataVec[bench_number].hilCurDistance += (sim_data.hilDataVec[bench_number].hilCurTime*(prev_mph+new_mph)/2) # using trap rule to append to the total distanc
+	if sim_data.hilDataVec[bench_number].hilCurTime == 0.0:
+		sim_data.hilDataVec[bench_number].hilCurTime = new_time
+		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
+	else:
+		sim_data.hilDataVec[bench_number].hilCurTime = new_time - sim_data.hilDataVec[bench_number].hilCurTime # space between the last message and the current
+		sim_data.hilDataVec[bench_number].hilLifeTime += sim_data.hilDataVec[bench_number].hilCurTime # adding the time_space to the total_time
+		prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH # storing the previous MPH
+		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph # getting the new MPH
+		sim_data.hilDataVec[bench_number].hilCurDistance += (sim_data.hilDataVec[bench_number].hilCurTime*(prev_mph+new_mph)/2) # using trap rule to append to the total distanc
 
 # This updates the respective bench based off the bench field
 def find_bench(bench, message, sim_data):
 	print("check2")
-	current_mph = int(message, 16)/128. # Get the current MPH (change 16 to 0 if 0x is included in message string)
+	current_mph = int(message)
+	# current_mph = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
 	current_time = time.time() # Get the current time
 	# Now, update based off the bench we passed in
 	for i in range(1, sim_widget.guiData.numHILs + 1):
