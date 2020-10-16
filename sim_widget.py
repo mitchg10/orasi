@@ -110,11 +110,11 @@ class SIMWidget(QWidget):
         self.time.setText(str(data.totTime) + " hours")
 
         for i in range(0, guiData.numHILs):
-            self.hilVec[i].speed.setText(str(data.hilDataVec[i].hilCurMPH))
-            self.hilVec[i].curDistance.setText(str(data.hilDataVec[i].hilCurDistance))
-            self.hilVec[i].curTime.setText(str(data.hilDataVec[i].hilCurTime))
-            self.hilVec[i].lifeDistance.setText(str(data.hilDataVec[i].hilLifeDistance))
-            self.hilVec[i].lifeTime.setText(str(data.hilDataVec[i].hilLifeTime))
+            self.hilVec[i].speed.setText(('%.2f'%data.hilDataVec[i].hilCurMPH))
+            self.hilVec[i].curDistance.setText(('%.2f'%data.hilDataVec[i].hilCurDistance))
+            self.hilVec[i].curTime.setText(('%.2f'%data.hilDataVec[i].hilCurTime))
+            self.hilVec[i].lifeDistance.setText(('%.2f'%data.hilDataVec[i].hilLifeDistance))
+            self.hilVec[i].lifeTime.setText(('%.2f'%data.hilDataVec[i].hilLifeTime))
             if data.hilDataVec[i].status == guiData.Status.STANDBY:
                 self.hilVec[i].changeBackground('b')
             elif data.hilDataVec[i].status == guiData.Status.RUNNING:
