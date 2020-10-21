@@ -17,16 +17,22 @@ class hilData():
         self.hilCurTime = 0
         self.hilLifeDistance = 0
         self.hilLifeTime = 0
-        #self.test = 0
+
+    def reset(self):
+        self.hilCurMPH = 0
+        self.hilCurDistance = 0
+        self.hilCurTime = 0
 
 class simData():
     def __init__(self):
-        self.test = 0   #ignore test
         self.totDistance = 0
         self.totTime = 0
         self.hilDataVec = []
 
-        #dw about numHILs, assume it's set to 6 if you need
-        for i in range (0, numHILs): 
+        for i in range(numHILs): 
             hData = hilData()
             self.hilDataVec.append(hData)
+
+    def reset(self):
+        for i in range(numHILs):
+            self.hilDataVec[i].reset()

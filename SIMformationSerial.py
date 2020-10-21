@@ -45,8 +45,9 @@ def find_bench(bench, abs_time, speed, sim_data, reset):
 	print("check2")
 	
 	if reset:
-		for i in range(1, sim_widget.guiData.numHILs + 1):
-			sim_data.hilDataVec[i] = sim_widget.guiData.hilData()
+		sim_data.reset()
+		# for i in range(sim_widget.guiData.numHILs):
+		# 	sim_data.hilDataVec[i] = sim_widget.guiData.hilData()
 
 	current_mph = float(speed)
 	# current_mph = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)

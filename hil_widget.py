@@ -55,27 +55,26 @@ class HILWidget(QWidget):
 
         #self.initUI()
 
-    def initUI(self, num = None):
+    # def initUI(self, num = None):
 
-        # if num is None: 
-        #     self.HILnum = QLabel("not initialized")
-        # else:
-        #     self.HILnum = QLabel(num)
+    #     # if num is None: 
+    #     #     self.HILnum = QLabel("not initialized")
+    #     # else:
+    #     #     self.HILnum = QLabel(num)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.HILnum)
-        self.setLayout(layout)
+    #     layout = QVBoxLayout()
+    #     layout.addWidget(self.HILnum)
+    #     self.setLayout(layout)
 
-        # self.setGeometry(300, 300, 390, 210)
-        # self.setWindowTitle('Burning widget')
-        # self.show()
+    #     # self.setGeometry(300, 300, 390, 210)
+    #     # self.setWindowTitle('Burning widget')
+    #     # self.show()
 
     def paintEvent(self, e):
         opt = QStyleOption()
         opt.initFrom(self)
         p = QPainter(self)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
-
 
     def setBackground(self, color):
         if not color == self.color: 

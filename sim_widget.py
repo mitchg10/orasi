@@ -113,7 +113,6 @@ class SIMWidget(QWidget):
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
     def dataUpdate(self, data):
-        #print("check: " , data.test)
         self.distance.setText(('%.2f'%data.totDistance) + " miles")
         self.time.setText(('%.2f'%data.totTime) + " hours")
 
