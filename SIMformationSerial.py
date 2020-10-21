@@ -41,8 +41,13 @@ def set_bench_vars(sim_data, bench_number, new_mph, new_time):
 	sim_data.totTime += (new_time - prev_time)
 
 # This updates the respective bench based off the bench field
-def find_bench(bench, abs_time, speed, sim_data):
+def find_bench(bench, abs_time, speed, sim_data, reset):
 	print("check2")
+	
+	if reset:
+		for i in range(1, sim_widget.guiData.numHILs + 1):
+			sim_data.hilDataVec[i] = sim_widget.guiData.hilData()
+
 	current_mph = float(speed)
 	# current_mph = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
 	current_time = float(abs_time) # Get the current time
@@ -67,16 +72,15 @@ def csv_reader():
 				abs_time = row[1]
 				bench = row[9]
 				speed = row[23]
+				reset = False
 				try:
 					sw.resetQueue.get(False)
 					sw.resetQueue.task_done
+					reset = True
 					print("reset")
-					#Mitch - handle resetting things here
-					#you should set it up to call a q.put(sim_data) at the end
 				except queue.Empty:
-					#put nothing here for csv_reader, but will prob be needed for serialReader 
 					pass
-				find_bench(bench, abs_time, speed, sim_data)
+				find_bench(bench, abs_time, speed, sim_data, reset)
 				q.put(sim_data) # Add to queue
 			line_count += 1
 			sleep(1)
