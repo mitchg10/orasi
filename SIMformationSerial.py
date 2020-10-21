@@ -67,6 +67,15 @@ def csv_reader():
 				abs_time = row[1]
 				bench = row[9]
 				speed = row[23]
+				try:
+					sw.resetQueue.get(False)
+					sw.resetQueue.task_done
+					print("reset")
+					#Mitch - handle resetting things here
+					#you should set it up to call a q.put(sim_data) at the end
+				except queue.Empty:
+					#put nothing here for csv_reader, but will prob be needed for serialReader 
+					pass
 				find_bench(bench, abs_time, speed, sim_data)
 				q.put(sim_data) # Add to queue
 			line_count += 1

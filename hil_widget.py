@@ -48,8 +48,9 @@ class HILWidget(QWidget):
         self.setLayout(layout)
 
         #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(255, 255, 255, 95); } QLabel{ color: white; font: 18px }")
-        self.setStyleSheet("HILWidget{ background-color: rgba(255, 255, 255, 95); } QLabel{ color: white; font: 18px }")
-        
+        #self.setStyleSheet("HILWidget{ background-color: rgba(255, 255, 255, 95); } QLabel{ color: white; font: 18px }")
+        self.setBackground(self.color)
+
         self.HILnum.setStyleSheet("font: bold 50px") #70
 
         #self.initUI()
@@ -76,25 +77,28 @@ class HILWidget(QWidget):
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
 
-    def changeBackground(self, color):
+    def setBackground(self, color):
         if not color == self.color: 
+            hilNumColor = "white"
             if color == 'r':
                 styleColor = "252, 87, 45, 90"
             elif color == 'g':
                 styleColor = "71, 156, 89, 90"
+                hilNumColor = "white"
             elif color == 'y':
                 styleColor = "255, 201, 101, 90"
             elif color == 'h':
                 styleColor = "109, 113, 117, 90"
             elif color == 'b':
                 styleColor = "0, 0, 0, 90"
+                hilNumColor = "black"
             elif color == 't':
                 styleColor = "0, 0, 0, 0"
             else:
                 return
 
             #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
-            self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
+            self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor + "); } QLabel{ color: " + hilNumColor + "; font: 18px }")
             self.color = color    
         
         # self.style().unpolish(self)
@@ -109,7 +113,7 @@ def main():
     app = QApplication(sys.argv)
     hw = HILWidget()
     hw.show()
-    #hw.changeBackground('r')
+    #hw.setBackground('r')
     sys.exit(app.exec_())
 
 

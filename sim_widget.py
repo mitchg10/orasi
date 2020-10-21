@@ -5,6 +5,7 @@ Author: Ellen Sawitzki
 """
 
 from PyQt5.QtWidgets import (QWidget, QLineEdit, QApplication, QLabel,
+                             QPushButton,
                              QHBoxLayout, QVBoxLayout, QGridLayout,
                              QStyleOption, QStyle)
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
@@ -20,6 +21,8 @@ import guiData
 class SIMWidget(QWidget):
     def __init__(self, orientation):
         super().__init__()
+
+        self.resetQueue = queue.Queue()
 
         if orientation == 'V':
 
@@ -45,6 +48,8 @@ class SIMWidget(QWidget):
             self.userInput = QLineEdit()
             layout.addWidget(self.userInput)
 
+            self.resetButton = QPushButton("reset")
+
             self.setLayout(layout)
             self.setWindowTitle("SIMformation Widget")
 
@@ -60,9 +65,11 @@ class SIMWidget(QWidget):
 
             self.distance = QLabel("0 miles")
             self.time = QLabel("0 hours")
+            self.resetButton = QPushButton("RESET")
 
             topLayout.addWidget(self.distance, 0, 0)
             topLayout.addWidget(self.time, 0, 1)
+            topLayout.addWidget(self.resetButton, 1, 2)
             layout.addLayout(topLayout, 0, 0, 1, 0)
 
             if guiData.numHILs % 3 == 0: totalRows = int(guiData.numHILs / 3)
@@ -97,6 +104,7 @@ class SIMWidget(QWidget):
         #self.initUI()
 
         self.userInput.returnPressed.connect(self.changeColor)
+        self.resetButton.pressed.connect(self.resetHandler)
 
     def paintEvent(self, e):
         opt = QStyleOption()
@@ -116,9 +124,9 @@ class SIMWidget(QWidget):
             self.hilVec[i].lifeDistance.setText(('%.2f'%data.hilDataVec[i].hilLifeDistance))
             self.hilVec[i].lifeTime.setText(('%.2f'%data.hilDataVec[i].hilLifeTime))
             if data.hilDataVec[i].status == guiData.Status.STANDBY:
-                self.hilVec[i].changeBackground('b')
+                self.hilVec[i].setBackground('b')
             elif data.hilDataVec[i].status == guiData.Status.RUNNING:
-                self.hilVec[i].changeBackground('g')
+                self.hilVec[i].setBackground('g')
 
     def changeColor(self):
         t = self.userInput.text()
@@ -132,8 +140,10 @@ class SIMWidget(QWidget):
         chars = set(hilNumCheck)
 
         if (len(t) == 2) and any((c in chars) for c in t[0]):
-            self.hilVec[int(t[0]) - 1].changeBackground(t[1])
+            self.hilVec[int(t[0]) - 1].setBackground(t[1])
 
+    def resetHandler(self):
+        self.resetQueue.put(True) #doesn't matter what you put, just put something
 
 #     def initUI(self):
 
