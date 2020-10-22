@@ -123,7 +123,7 @@ class SIMWidget(QWidget):
             self.hilVec[i].lifeDistance.setText(('%.2f'%data.hilDataVec[i].hilLifeDistance))
             self.hilVec[i].lifeTime.setText(('%.2f'%data.hilDataVec[i].hilLifeTime))
             if data.hilDataVec[i].status == guiData.Status.STANDBY:
-                self.hilVec[i].setBackground('b')
+                self.hilVec[i].setBackground('t')
             elif data.hilDataVec[i].status == guiData.Status.RUNNING:
                 self.hilVec[i].setBackground('g')
 

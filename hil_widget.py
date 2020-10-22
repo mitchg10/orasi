@@ -90,9 +90,10 @@ class HILWidget(QWidget):
                 styleColor = "109, 113, 117, 90"
             elif color == 'b':
                 styleColor = "0, 0, 0, 90"
-                hilNumColor = "black"
+                hilNumColor = "white"
             elif color == 't':
                 styleColor = "0, 0, 0, 0"
+                hilNumColor = "black"
             else:
                 return
 

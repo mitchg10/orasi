@@ -25,7 +25,7 @@ q = queue.Queue()
 # 		sim_data.hilDataVec[bench_number].hilCurMPH = new_mph # getting the new MPH
 # 		sim_data.hilDataVec[bench_number].hilCurDistance += (sim_data.hilDataVec[bench_number].hilCurTime*(prev_mph+new_mph)/2) # using trap rule to append to the total distanc
 
-def set_bench_vars(sim_data, bench_number, new_mph, new_time):
+def set_bench_vars(sim_data, bench_number, new_mph, new_time, status):
 	# Get previous data fields
 	prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH
 	prev_time = sim_data.hilDataVec[bench_number].hilCurTime
@@ -40,11 +40,17 @@ def set_bench_vars(sim_data, bench_number, new_mph, new_time):
 	# Add to overall totals
 	sim_data.totDistance += sim_data.hilDataVec[bench_number].hilCurDistance
 	sim_data.totTime += (new_time - prev_time)
+	# set status
+	if status == 'F':
+		sim_data.hilDataVec[bench_number].status = sim_widget.guiData.Status.RUNNING
+	else:
+		sim_data.hilDataVec[bench_number].status = sim_widget.guiData.Status.STANDBY
+
 
 	return sim_data
 
 # This updates the respective bench based off the bench field
-def find_bench(bench, abs_time, speed, sim_data, reset = False):
+def find_bench(bench, abs_time, speed, status, sim_data, reset = False):
 	print("check2")
 	
 	if reset:
@@ -59,7 +65,7 @@ def find_bench(bench, abs_time, speed, sim_data, reset = False):
 		for i in range(1, sim_widget.guiData.numHILs + 1):
 			bench_str = 'C{}'.format(i)
 			if bench == bench_str:
-				sim_data = set_bench_vars(sim_data, i - 1, current_mph, current_time)
+				sim_data = set_bench_vars(sim_data, i - 1, current_mph, current_time, status)
 	
 	return sim_data
 
@@ -78,7 +84,7 @@ def csv_reader():
 				abs_time = row[1]
 				bench = row[9]
 				speed = row[23]
-				reset = False
+				status = row[4]
 				try:
 					sw.resetQueue.get(False)
 					sw.resetQueue.task_done
@@ -88,10 +94,10 @@ def csv_reader():
 					print("reset: " , sim_data.hilDataVec[1].hilCurDistance)
 				except queue.Empty:
 					pass
-				sim_data = find_bench(bench, abs_time, speed, sim_data)
+				sim_data = find_bench(bench, abs_time, speed, status, sim_data)
 				q.put(sim_data) # Add to queue
 			line_count += 1
-			sleep(.01)
+			sleep(0.1)
 			print("check csv" , row[0])
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A SERIAL CONNECTION #################################
