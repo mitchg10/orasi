@@ -38,7 +38,7 @@ class SerialReceiver:
 					self.find_bench(bench, abs_time, speed, status)
 					q.put(self.sim_data) # Add to queue
 				line_count += 1
-				sleep(0.1)
+				sleep(0.01)
 
 	def find_bench(self, bench, abs_time, speed, status):
 		print("FINDING BENCH")

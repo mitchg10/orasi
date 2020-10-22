@@ -58,7 +58,7 @@ class SIMWidget(QWidget):
 
         elif orientation == 'H':
 
-            self.resize(775, 600) #change to 800ish
+            self.resize(900, 600) #change to 800ish
 
             layout = QGridLayout()
             topLayout = QGridLayout()
@@ -69,7 +69,7 @@ class SIMWidget(QWidget):
 
             topLayout.addWidget(self.distance, 0, 0)
             topLayout.addWidget(self.time, 0, 1)
-            topLayout.addWidget(self.resetButton, 1, 2)
+            topLayout.addWidget(self.resetButton, 0, 2)
             layout.addLayout(topLayout, 0, 0, 1, 0)
 
             if guiData.numHILs % 3 == 0: totalRows = int(guiData.numHILs / 3)
