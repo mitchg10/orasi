@@ -26,23 +26,22 @@ class SerialReceiver:
 					abs_time = row[1]
 					bench = row[9]
 					speed = row[23]
-					reset = False
+					status = row[4]
 					try:
 						sw.resetQueue.get(False)
 						sw.resetQueue.task_done
-						reset = True
+						# reset = True
+						sim_data.reset()
 						print("RESET RECEIVED")
 					except queue.Empty:
 						pass
-					self.find_bench(bench, abs_time, speed, reset)
+					self.find_bench(bench, abs_time, speed, status)
 					q.put(self.sim_data) # Add to queue
 				line_count += 1
-				sleep(1)
+				sleep(0.1)
 
-	def find_bench(self, bench, abs_time, speed, reset):
+	def find_bench(self, bench, abs_time, speed, status):
 		print("FINDING BENCH")
-		if self.reset:
-			self.sim_data.reset()
 
 		self.current_mph = float(speed) # = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
 		self.current_time = float(abs_time)
@@ -50,6 +49,11 @@ class SerialReceiver:
 			bench_str = 'C{}'.format(i)
 			if bench == bench_str:
 				self.set_bench_vars(i - 1)
+				# set status
+				if status == 'F':
+					self.sim_data.hilDataVec[i-1].status = sim_widget.guiData.Status.RUNNING
+				else:
+					self.sim_data.hilDataVec[i-1].status = sim_widget.guiData.Status.STANDBY
 
 	def set_bench_vars(self, bench_number):
 		# Get previous data fields
@@ -61,9 +65,9 @@ class SerialReceiver:
 		# Set new distances and append time
 		self.sim_data.hilDataVec[bench_number].hilLifeTime += (self.current_time - prev_time)
 		self.sim_data.hilDataVec[bench_number].hilCurDistance += ((self.current_time - prev_time)*(prev_mph + self.current_mph)/2)
-		self.sim_data.hilDataVec[bench_number].hilLifeDistance += sim_data.hilDataVec[bench_number].hilCurDistance
+		self.sim_data.hilDataVec[bench_number].hilLifeDistance += self.sim_data.hilDataVec[bench_number].hilCurDistance
 		# Add to overall totals
-		self.sim_data.totDistance += sim_data.hilDataVec[bench_number].hilCurDistance
+		self.sim_data.totDistance += self.sim_data.hilDataVec[bench_number].hilCurDistance
 		self.sim_data.totTime += (self.current_time - prev_time)
 
 	def serial_reader(self):
@@ -101,6 +105,7 @@ def dataReceiver():
 		data = q.get()
 		sw.dataUpdate(data)
 		q.task_done()
+		sleep(1)
 
 ################## MAIN ######################
 
@@ -113,7 +118,7 @@ def main():
 
 	sr = SerialReceiver()
 
-	threading.Thread(target=sr.csv_reader(), daemon=True).start()
+	threading.Thread(target=sr.csv_reader, daemon=True).start()
 	# threading.Thread(target=sr.serialReader, daemon=True).start()
 
 	threading.Thread(target=dataReceiver, daemon=True).start()
