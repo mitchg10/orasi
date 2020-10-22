@@ -87,7 +87,7 @@ class SIMWidget(QWidget):
                     n = n + 1
 
             self.userInput = QLineEdit()
-            #layout.addWidget(self.userInput, totalRows + 1, 0, totalRows + 1, 2)
+            # layout.addWidget(self.userInput, totalRows + 1, 0, totalRows + 1, 2)
 
             self.setLayout(layout)
             self.setWindowTitle("SIMformation Widget")
@@ -153,8 +153,7 @@ class SIMWidget(QWidget):
 
 def main():
     app = QApplication(sys.argv)
-    q = queue.Queue()
-    sw = SIMWidget(q)
+    sw = SIMWidget('H')
     sw.show()
     sys.exit(app.exec_())
     # while 1:

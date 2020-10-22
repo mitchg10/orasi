@@ -31,7 +31,7 @@ class SerialReceiver:
 						sw.resetQueue.get(False)
 						sw.resetQueue.task_done
 						# reset = True
-						sim_data.reset()
+						self.sim_data.reset()
 						print("RESET RECEIVED")
 					except queue.Empty:
 						pass
