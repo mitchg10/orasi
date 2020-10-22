@@ -29,6 +29,7 @@ def set_bench_vars(sim_data, bench_number, new_mph, new_time):
 	# Get previous data fields
 	prev_mph = sim_data.hilDataVec[bench_number].hilCurMPH
 	prev_time = sim_data.hilDataVec[bench_number].hilCurTime
+	print("sbv prev mph and time: " , prev_mph , " " , prev_time)
 	# Set new mph and times
 	sim_data.hilDataVec[bench_number].hilCurMPH = new_mph
 	sim_data.hilDataVec[bench_number].hilCurTime = new_time
@@ -40,23 +41,27 @@ def set_bench_vars(sim_data, bench_number, new_mph, new_time):
 	sim_data.totDistance += sim_data.hilDataVec[bench_number].hilCurDistance
 	sim_data.totTime += (new_time - prev_time)
 
+	return sim_data
+
 # This updates the respective bench based off the bench field
-def find_bench(bench, abs_time, speed, sim_data, reset):
+def find_bench(bench, abs_time, speed, sim_data, reset = False):
 	print("check2")
 	
 	if reset:
 		sim_data.reset()
 		# for i in range(sim_widget.guiData.numHILs):
 		# 	sim_data.hilDataVec[i] = sim_widget.guiData.hilData()
-
-	current_mph = float(speed)
-	# current_mph = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
-	current_time = float(abs_time) # Get the current time
-	# Now, update based off the bench we passed in
-	for i in range(1, sim_widget.guiData.numHILs + 1):
-		bench_str = 'C{}'.format(i)
-		if bench == bench_str:
-			set_bench_vars(sim_data, i - 1, current_mph, current_time)
+	else:
+		current_mph = float(speed)
+		# current_mph = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
+		current_time = float(abs_time) # Get the current time
+		# Now, update based off the bench we passed in
+		for i in range(1, sim_widget.guiData.numHILs + 1):
+			bench_str = 'C{}'.format(i)
+			if bench == bench_str:
+				sim_data = set_bench_vars(sim_data, i - 1, current_mph, current_time)
+	
+	return sim_data
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A CSV FILE #################################
 
@@ -77,14 +82,16 @@ def csv_reader():
 				try:
 					sw.resetQueue.get(False)
 					sw.resetQueue.task_done
-					reset = True
-					print("reset")
+					sim_data.reset()
+					# sim_data = find_bench(bench, abs_time, speed, sim_data, True)
+					q.put(sim_data) # Add to queue
+					print("reset: " , sim_data.hilDataVec[1].hilCurDistance)
 				except queue.Empty:
 					pass
-				find_bench(bench, abs_time, speed, sim_data, reset)
+				sim_data = find_bench(bench, abs_time, speed, sim_data)
 				q.put(sim_data) # Add to queue
 			line_count += 1
-			sleep(1)
+			sleep(.01)
 			print("check csv" , row[0])
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A SERIAL CONNECTION #################################
@@ -128,6 +135,7 @@ def dataReceiver():
 		data = q.get()
 		sw.dataUpdate(data)
 		q.task_done()
+		sleep(1)
 
 ################## MAIN ######################
 
