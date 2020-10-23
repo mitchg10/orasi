@@ -3,14 +3,19 @@ import serial # Serial connection library
 import queue
 import threading
 import sys
+import time
+from timeloop import Timeloop # pip3 install timeloop
+from datetime import timedelta
 from PyQt5.QtWidgets import (QWidget, QApplication)
-from time import sleep
 from enum import Enum
 import csv
 
 import sim_widget
 
+GUI_UPDATE_INTERVAL = 1 # how often the gui is updated (seconds)
+
 q = queue.Queue()
+loop = Timeloop()
 
 class SerialReceiver:
 	def __init__(self):
@@ -30,7 +35,6 @@ class SerialReceiver:
 					try:
 						sw.resetQueue.get(False)
 						sw.resetQueue.task_done
-						# reset = True
 						self.sim_data.reset()
 						print("RESET RECEIVED")
 					except queue.Empty:
@@ -38,7 +42,7 @@ class SerialReceiver:
 					self.find_bench(bench, abs_time, speed, status)
 					q.put(self.sim_data) # Add to queue
 				line_count += 1
-				sleep(0.01)
+				time.sleep(0.01)
 
 	def find_bench(self, bench, abs_time, speed, status):
 		print("FINDING BENCH")
@@ -101,11 +105,25 @@ class SerialReceiver:
 ################## FOR RECEIVING DATA FROM THE QUEUE ############################
 
 def dataReceiver():
+	timerPrime = False
 	while True:
+		print("queue length: " , q.qsize())
 		data = q.get()
-		sw.dataUpdate(data)
+		if data.totTime == -1:
+			timerPrime = True
+		elif timerPrime:
+			sw.dataUpdate(data)
+			timerPrime = False
 		q.task_done()
-		sleep(1)
+
+
+################## TIMER CALLBACK TO SEND UPDATE MESSAGE TO GUI DATA QUEUE ######################
+
+@loop.job(interval=timedelta(seconds=GUI_UPDATE_INTERVAL))
+def timerCallback():
+	timerMsg = sim_widget.guiData.simData()
+	timerMsg.totTime = -1 # signify a timer message
+	q.put(timerMsg, False)
 
 ################## MAIN ######################
 
@@ -120,6 +138,8 @@ def main():
 
 	threading.Thread(target=sr.csv_reader, daemon=True).start()
 	# threading.Thread(target=sr.serialReader, daemon=True).start()
+
+	loop.start(block=False)
 
 	threading.Thread(target=dataReceiver, daemon=True).start()
 	sys.exit(app.exec_())
