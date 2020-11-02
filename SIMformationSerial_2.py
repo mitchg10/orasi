@@ -5,7 +5,7 @@ import threading
 import sys
 import time
 from timeloop import Timeloop # pip3 install timeloop
-from datetime import timedelta
+from datetime import timedelta, datetime
 from PyQt5.QtWidgets import (QWidget, QApplication)
 from enum import Enum
 import csv
@@ -15,6 +15,8 @@ import sim_widget
 GUI_UPDATE_INTERVAL = 1 # how often the gui is updated (seconds)
 
 q = queue.Queue()
+# global timerSeqNum
+# timerSeqNum = 0
 loop = Timeloop()
 
 class SerialReceiver:
@@ -26,6 +28,7 @@ class SerialReceiver:
 		with open('sample_data.csv') as csv_file:
 			csv_reader = csv.reader(csv_file, delimiter=',')
 			line_count = 0
+			seqNum = 0
 			for row in csv_reader:
 				if line_count != 0:
 					abs_time = row[1]
@@ -33,19 +36,24 @@ class SerialReceiver:
 					speed = row[23]
 					status = row[4]
 					try:
-						sw.resetQueue.get(False)
+						resNum = sw.resetQueue.get(False)
 						sw.resetQueue.task_done
-						self.sim_data.reset()
-						print("RESET RECEIVED")
+						if resNum == -1:
+							self.sim_data.reset()
+						else:
+							self.sim_data.hilDataVec[resNum].reset()
+						print("RESET RECEIVED: " , resNum)
 					except queue.Empty:
 						pass
 					self.find_bench(bench, abs_time, speed, status)
+					self.sim_data.sequence = seqNum
 					q.put(self.sim_data) # Add to queue
 				line_count += 1
+				seqNum += 1
 				time.sleep(0.01)
 
 	def find_bench(self, bench, abs_time, speed, status):
-		print("FINDING BENCH")
+		# print("FINDING BENCH")
 
 		self.current_mph = float(speed) # = int(message, 16)/128 # Get the current MPH (change 16 to 0 if 0x is included in message string)
 		self.current_time = float(abs_time)
@@ -107,13 +115,16 @@ class SerialReceiver:
 def dataReceiver():
 	timerPrime = False
 	while True:
-		print("queue length: " , q.qsize())
+		# print("queue length: " , q.qsize())
 		data = q.get()
+		msgType = "data parsing"
 		if data.totTime == -1:
 			timerPrime = True
+			msgType = "timer"
 		elif timerPrime:
 			sw.dataUpdate(data)
 			timerPrime = False
+		# print(msgType , "message sequence number: " , data.sequence)
 		q.task_done()
 
 
@@ -121,9 +132,16 @@ def dataReceiver():
 
 @loop.job(interval=timedelta(seconds=GUI_UPDATE_INTERVAL))
 def timerCallback():
+	# print("time: " , datetime.now().strftime("%H:%M:%S"))
 	timerMsg = sim_widget.guiData.simData()
 	timerMsg.totTime = -1 # signify a timer message
+	global timerSeqNum
+	try: timerSeqNum += 1
+	except Exception:
+		timerSeqNum = 1
+	timerMsg.sequence = timerSeqNum
 	q.put(timerMsg, False)
+	
 
 ################## MAIN ######################
 
@@ -142,6 +160,7 @@ def main():
 	loop.start(block=False)
 
 	threading.Thread(target=dataReceiver, daemon=True).start()
+
 	sys.exit(app.exec_())
 
 if __name__ == '__main__':

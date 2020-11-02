@@ -6,9 +6,9 @@ Author: Ellen Sawitzki
 import time
 from PyQt5.QtWidgets import (QLabel, QWidget, QSlider, QApplication,
                              QHBoxLayout, QVBoxLayout, QGridLayout, 
-                             QStyleOption, QStyle)
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtGui import QPainter, QFont, QColor, QPen
+                             QStyleOption, QStyle, QPushButton)
+from PyQt5.QtCore import QObject, Qt, QSize
+from PyQt5.QtGui import QPainter, QFont, QColor, QPen, QIcon
 import sys
 
 class HILWidget(QWidget):
@@ -26,15 +26,19 @@ class HILWidget(QWidget):
         self.curTime = QLabel("0")
         self.lifeDistance = QLabel("0")
         self.lifeTime = QLabel("0")
+        self.testNum = QLabel("#0")
         curQL = QLabel("session")
         lifeQL = QLabel("lifetime")
         dUnit = QLabel("miles")
         tUnit = QLabel("hours")
         sUnit = QLabel("mph")
 
+        self.resetButton = QPushButton()
+        self.resetButton.setIconSize(QSize(60,60))
+
         layout = QGridLayout()
 
-        layout.addWidget(self.HILnum, 0, 0, 3, 0)
+        layout.addWidget(self.HILnum, 0, 0, 1, 1)
         layout.addWidget(curQL, 0, 1)
         layout.addWidget(lifeQL, 0, 2)
         layout.addWidget(self.curDistance, 1, 1)
@@ -42,33 +46,17 @@ class HILWidget(QWidget):
         layout.addWidget(self.lifeDistance, 1, 2)
         layout.addWidget(self.lifeTime, 2, 2)
         layout.addWidget(self.speed, 3, 1)
+        layout.addWidget(self.testNum, 1, 0)
         layout.addWidget(dUnit, 1, 3)
         layout.addWidget(tUnit, 2, 3)
         layout.addWidget(sUnit, 3, 3)
+        layout.addWidget(self.resetButton, 0, 3)
         self.setLayout(layout)
 
-        #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(255, 255, 255, 95); } QLabel{ color: white; font: 18px }")
-        #self.setStyleSheet("HILWidget{ background-color: rgba(255, 255, 255, 95); } QLabel{ color: white; font: 18px }")
         self.setBackground(self.color)
 
-        self.HILnum.setStyleSheet("font: bold 50px") #70
-
-        #self.initUI()
-
-    # def initUI(self, num = None):
-
-    #     # if num is None: 
-    #     #     self.HILnum = QLabel("not initialized")
-    #     # else:
-    #     #     self.HILnum = QLabel(num)
-
-    #     layout = QVBoxLayout()
-    #     layout.addWidget(self.HILnum)
-    #     self.setLayout(layout)
-
-    #     # self.setGeometry(300, 300, 390, 210)
-    #     # self.setWindowTitle('Burning widget')
-    #     # self.show()
+        self.HILnum.setStyleSheet("font: bold 50px")
+        self.resetButton.setStyleSheet("font: bold 20px; background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
 
     def paintEvent(self, e):
         opt = QStyleOption()
@@ -79,11 +67,13 @@ class HILWidget(QWidget):
     def setBackground(self, color):
         if not color == self.color: 
             hilNumColor = "white"
+            icon = QIcon('reset_white.png')
             if color == 'r':
                 styleColor = "252, 87, 45, 90"
             elif color == 'g':
                 styleColor = "71, 156, 89, 90"
                 hilNumColor = "white"
+                icon = QIcon('reset_white.png')
             elif color == 'y':
                 styleColor = "255, 201, 101, 90"
             elif color == 'h':
@@ -94,26 +84,19 @@ class HILWidget(QWidget):
             elif color == 't':
                 styleColor = "0, 0, 0, 0"
                 hilNumColor = "black"
+                icon = QIcon('reset_black.png')
             else:
                 return
 
-            #self.setStyleSheet("HILWidget{ border: 3px solid white; background-color: rgba(" + styleColor + "); } QLabel{ color: white; font: 18px }")
+            self.resetButton.setIcon(icon)
             self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor + "); } QLabel{ color: " + hilNumColor + "; font: 18px }")
             self.color = color    
         
-        # self.style().unpolish(self)
-        # self.style().polish(self)
-        # self.update()
-
-        #print("check2")
-        # self.c.updateBW.emit(value)
-        # self.wid.repaint()
 
 def main():
     app = QApplication(sys.argv)
     hw = HILWidget()
     hw.show()
-    #hw.setBackground('r')
     sys.exit(app.exec_())
 
 

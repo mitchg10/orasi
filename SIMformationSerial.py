@@ -97,7 +97,7 @@ def csv_reader():
 				sim_data = find_bench(bench, abs_time, speed, status, sim_data)
 				q.put(sim_data) # Add to queue
 			line_count += 1
-			sleep(0.1)
+			sleep(0.5)
 			print("check csv" , row[0])
 
 ###################### FOR SENDING DATA TO THE QUEUE FROM A SERIAL CONNECTION #################################

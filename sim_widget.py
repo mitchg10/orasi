@@ -10,10 +10,9 @@ from PyQt5.QtWidgets import (QWidget, QLineEdit, QApplication, QLabel,
                              QStyleOption, QStyle)
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QPen, QPixmap, QPalette, QBrush
+from functools import partial
 import sys
 import queue
-import threading
-from time import sleep
 
 import hil_widget
 import guiData
@@ -23,6 +22,7 @@ class SIMWidget(QWidget):
         super().__init__()
 
         self.resetQueue = queue.Queue()
+        self.seqNum = 1
 
         if orientation == 'V':
 
@@ -48,7 +48,7 @@ class SIMWidget(QWidget):
             self.userInput = QLineEdit()
             layout.addWidget(self.userInput)
 
-            self.resetButton = QPushButton("reset")
+            self.resetButton = QPushButton("RESET ALL")
 
             self.setLayout(layout)
             self.setWindowTitle("SIMformation Widget")
@@ -65,7 +65,7 @@ class SIMWidget(QWidget):
 
             self.distance = QLabel("0 miles")
             self.time = QLabel("0 hours")
-            self.resetButton = QPushButton("RESET")
+            self.resetButton = QPushButton("RESET ALL")
 
             topLayout.addWidget(self.distance, 0, 0)
             topLayout.addWidget(self.time, 0, 1)
@@ -94,17 +94,19 @@ class SIMWidget(QWidget):
 
             self.distance.setStyleSheet("color: white; font: bold 35px")
             self.time.setStyleSheet("color: white; font: bold 35px")
-
-        background = QPixmap("/home/pi/Documents/Orasi/matteo-bernardis-QpIayO5KIRE-unsplash.jpg")
+            self.resetButton.setStyleSheet("font: bold 20px; color: white; background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
+                
+        background = QPixmap("paul-gilmore-mqO0Rf-PUMs-unsplash.jpg")
+        # background = QPixmap("/home/pi/Documents/Orasi/matteo-bernardis-QpIayO5KIRE-unsplash.jpg")
         background = background.scaled(self.size(), Qt.IgnoreAspectRatio, Qt.FastTransformation)
         palette = QPalette()
         palette.setBrush(QPalette.Window, QBrush(background))
         self.setPalette(palette)
 
-        #self.initUI()
-
         self.userInput.returnPressed.connect(self.changeColor)
         self.resetButton.pressed.connect(self.resetHandler)
+        for i in range(guiData.numHILs):
+            self.hilVec[i].resetButton.pressed.connect(partial(self.resetHandler, i))
 
     def paintEvent(self, e):
         opt = QStyleOption()
@@ -122,6 +124,7 @@ class SIMWidget(QWidget):
             self.hilVec[i].curTime.setText(('%.2f'%data.hilDataVec[i].hilCurTime))
             self.hilVec[i].lifeDistance.setText(('%.2f'%data.hilDataVec[i].hilLifeDistance))
             self.hilVec[i].lifeTime.setText(('%.2f'%data.hilDataVec[i].hilLifeTime))
+            self.hilVec[i].testNum.setText("#" + str(data.hilDataVec[i].testNum))
             if data.hilDataVec[i].status == guiData.Status.STANDBY:
                 self.hilVec[i].setBackground('t')
             elif data.hilDataVec[i].status == guiData.Status.RUNNING:
@@ -141,14 +144,9 @@ class SIMWidget(QWidget):
         if (len(t) == 2) and any((c in chars) for c in t[0]):
             self.hilVec[int(t[0]) - 1].setBackground(t[1])
 
-    def resetHandler(self):
-        self.resetQueue.put(True) #doesn't matter what you put, just put something
-
-#     def initUI(self):
-
-#         self.setMinimumSize(1, 30)
-#         self.value = 75
-#         self.num = [75, 150, 225, 300, 375, 450, 525, 600, 675]
+    def resetHandler(self, num = -1):
+        self.resetQueue.put(num) 
+        self.seqNum += 1
 
 
 def main():
@@ -156,14 +154,6 @@ def main():
     sw = SIMWidget('H')
     sw.show()
     sys.exit(app.exec_())
-    # while 1:
-    #     sleep(1)
-    #     countGet = countGet + 1
-    #     getData = q.get()
-    #     guiData = getData
-    #     print(f'data get {countGet}: {getData}')
-    #     q.task_done()
-
 
 
 if __name__ == '__main__':
