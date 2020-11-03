@@ -52,11 +52,12 @@ class HILWidget(QWidget):
         layout.addWidget(sUnit, 3, 3)
         layout.addWidget(self.resetButton, 0, 3)
         self.setLayout(layout)
-
-        self.setBackground(self.color)
-
+        
         self.HILnum.setStyleSheet("font: bold 50px")
-        self.resetButton.setStyleSheet("font: bold 20px; background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
+        self.testNum.setStyleSheet("font: bold 20px")
+        self.resetButton.setStyleSheet("background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
+        
+        self.setBackground(self.color)
 
     def paintEvent(self, e):
         opt = QStyleOption()
