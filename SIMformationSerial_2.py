@@ -1,13 +1,15 @@
+#!/usr/bin/env python
+
 import time # Time library
-import serial # Serial connection library
+import serial # Serial connection library - pip3 install pyserial
 import queue
 import threading
 import sys
 import time
 from timeloop import Timeloop # pip3 install timeloop
 from datetime import timedelta, datetime
-from PyQt5.QtWidgets import (QWidget, QApplication)
-from enum import Enum
+from PyQt5.QtWidgets import (QWidget, QApplication) # sudo apt-get install python3-pyqt5
+from enum import Enum # pip3 install enum
 import csv
 
 import sim_widget

@@ -15,9 +15,10 @@ class hilData():
         self.hilCurMPH = 0
         self.hilCurDistance = 0
         self.hilCurTime = 0
+        self.hilCurTest = 0
         self.hilLifeDistance = 0
         self.hilLifeTime = 0
-        self.testNum = 0
+        self.hilLifeTest = 0
 
     def reset(self):
         self.hilCurMPH = 0
@@ -28,6 +29,7 @@ class simData():
     def __init__(self):
         self.totDistance = 0
         self.totTime = 0
+        self.totTest = 0
         self.hilDataVec = []
         self.sequence = 0
 

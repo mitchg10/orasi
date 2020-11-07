@@ -17,6 +17,12 @@ import queue
 import hil_widget
 import guiData
 
+def formatSigs(data):
+    if data > 10000000:
+        return ('%.2E'%data)
+    else:
+        return ('%i'%round(data))
+
 class SIMWidget(QWidget):
     def __init__(self, orientation):
         super().__init__()
@@ -65,11 +71,13 @@ class SIMWidget(QWidget):
 
             self.distance = QLabel("0 miles")
             self.time = QLabel("0 hours")
+            self.test = QLabel("0 tests")
             self.resetButton = QPushButton("RESET ALL")
 
             topLayout.addWidget(self.distance, 0, 0)
             topLayout.addWidget(self.time, 0, 1)
-            topLayout.addWidget(self.resetButton, 0, 2)
+            topLayout.addWidget(self.test, 0, 2)
+            topLayout.addWidget(self.resetButton, 0, 3)
             layout.addLayout(topLayout, 0, 0, 1, 0)
 
             if guiData.numHILs % 3 == 0: totalRows = int(guiData.numHILs / 3)
@@ -94,6 +102,7 @@ class SIMWidget(QWidget):
 
             self.distance.setStyleSheet("color: white; font: bold 35px")
             self.time.setStyleSheet("color: white; font: bold 35px")
+            self.test.setStyleSheet("color: white; font: bold 35px")
             self.resetButton.setStyleSheet("font: bold 20px; color: white; background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
                 
         background = QPixmap("paul-gilmore-mqO0Rf-PUMs-unsplash.jpg")
@@ -115,20 +124,22 @@ class SIMWidget(QWidget):
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
     def dataUpdate(self, data):
-        self.distance.setText(('%.2f'%data.totDistance) + " miles")
-        self.time.setText(('%.2f'%data.totTime) + " hours")
+        self.distance.setText(formatSigs(data.totDistance) + " miles")
+        self.time.setText(formatSigs(data.totTime) + " hours")
+        self.test.setText(formatSigs(data.totTest) + " tests")
 
         for i in range(0, guiData.numHILs):
-            self.hilVec[i].speed.setText(('%.2f'%data.hilDataVec[i].hilCurMPH))
-            self.hilVec[i].curDistance.setText(('%.2f'%data.hilDataVec[i].hilCurDistance))
-            self.hilVec[i].curTime.setText(('%.2f'%data.hilDataVec[i].hilCurTime))
-            self.hilVec[i].lifeDistance.setText(('%.2f'%data.hilDataVec[i].hilLifeDistance))
-            self.hilVec[i].lifeTime.setText(('%.2f'%data.hilDataVec[i].hilLifeTime))
-            self.hilVec[i].testNum.setText("#" + str(data.hilDataVec[i].testNum))
+            self.hilVec[i].curDistance.setText(formatSigs(data.hilDataVec[i].hilCurDistance))
+            self.hilVec[i].curTime.setText(formatSigs(data.hilDataVec[i].hilCurTime))
+            self.hilVec[i].curTest.setText(formatSigs(data.hilDataVec[i].hilCurTest))
+            self.hilVec[i].lifeDistance.setText(formatSigs(data.hilDataVec[i].hilLifeDistance))
+            self.hilVec[i].lifeTime.setText(formatSigs(data.hilDataVec[i].hilLifeTime))
+            self.hilVec[i].lifeTest.setText(formatSigs(data.hilDataVec[i].hilLifeTest))
             if data.hilDataVec[i].status == guiData.Status.STANDBY:
                 self.hilVec[i].setBackground('t')
             elif data.hilDataVec[i].status == guiData.Status.RUNNING:
                 self.hilVec[i].setBackground('g')
+
 
     def changeColor(self):
         t = self.userInput.text()
