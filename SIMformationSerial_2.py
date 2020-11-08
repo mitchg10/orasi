@@ -1,4 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+"""
+Author: Ellen, Mitch, Norm
+Created: Oct. 20, 2020
+Updated: Nov. 8, 2020
+
+Main program; runs SimWidget GUI alongside threads for the data read and 
+	parsing unit and queued communications
+"""
 
 import time  # Time library
 import serial  # Serial connection library - pip3 install pyserial
