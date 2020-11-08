@@ -8,15 +8,15 @@ Updated: Nov. 6, 2020
 PyQt class for main window of SIMformation widget, holding all HIL objects 
 """
 
+from functools import partial
+import sys
+import queue
 from PyQt5.QtWidgets import (QWidget, QLineEdit, QApplication, QLabel,
                              QPushButton,
                              QHBoxLayout, QVBoxLayout, QGridLayout,
                              QStyleOption, QStyle)
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QPainter, QFont, QColor, QPen, QPixmap, QPalette, QBrush
-from functools import partial
-import sys
-import queue
 
 import hil_widget
 import guiData

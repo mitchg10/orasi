@@ -10,17 +10,16 @@ Main program; runs SimWidget GUI alongside threads for the data read and
 """
 
 import time  # Time library
-import serial  # Serial connection library - pip3 install pyserial
 import queue
 import threading
 import sys
-import time
-from timeloop import Timeloop  # pip3 install timeloop
+import csv
 from datetime import timedelta, datetime
+import serial  # Serial connection library - pip3 install pyserial
+from timeloop import Timeloop  # pip3 install timeloop
 # sudo apt-get install python3-pyqt5
 from PyQt5.QtWidgets import (QWidget, QApplication)
-from enum import Enum  # pip3 install enum
-import csv
+
 
 import sim_widget
 

@@ -8,9 +8,7 @@ Updated: Nov. 6, 2020
 Classes to hold a package of data to update an entire SimWidget window
 """
 
-from enum import Enum
-
-import sim_widget
+from enum import Enum  # pip3 install enum
 
 numHILs = 6
 
