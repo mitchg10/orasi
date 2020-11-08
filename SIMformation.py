@@ -1,3 +1,11 @@
+#!/usr/bin/env python3
+
+"""
+Author: Ellen, Mitch, Norm
+Created: Aug. 28, 2020
+Updated: Oct. 13, 2020
+"""
+
 import queue
 import threading
 import random
@@ -12,10 +20,12 @@ import sim_widget
 q = queue.Queue()
 random.seed()
 
+
 class Status(Enum):
     RUNNING = 0
     STANDBY = 1
     FAILED = 2
+
 
 class hilData():
     def __init__(self):
@@ -26,16 +36,18 @@ class hilData():
         self.hilLifeTime = 0
         #self.test = 0
 
+
 class simData():
     def __init__(self):
-        self.test = 0   #ignore test
+        self.test = 0  # ignore test
         self.totDistance = 0
         self.totTime = 0
         self.hilDataVec = []
 
-        for i in range (1, sim_widget.numHILs + 1):
+        for i in range(1, sim_widget.numHILs + 1):
             hData = hilData()
             self.hilDataVec.append(hData)
+
 
 def sensorRead():
     count = 0
@@ -46,7 +58,8 @@ def sensorRead():
         q.put(data)
         #print(f'Working on {count}: {data}')
         #print(f'Finished {data}')
-        #q.task_done()
+        # q.task_done()
+
 
 def dataSend():
     countGet = 0

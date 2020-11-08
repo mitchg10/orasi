@@ -1,26 +1,32 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 
 """
-Author: Ellen Sawitzki
+Author: Ellen
+Created: May 15, 2020
+Updated: Nov. 6, 2020
+
+PyQt class for individual HIL objects 
 """
+
 import time
 from PyQt5.QtWidgets import (QLabel, QWidget, QSlider, QApplication,
-                             QHBoxLayout, QVBoxLayout, QGridLayout, 
+                             QHBoxLayout, QVBoxLayout, QGridLayout,
                              QStyleOption, QStyle, QPushButton)
 from PyQt5.QtCore import QObject, Qt, QSize
 from PyQt5.QtGui import QPainter, QFont, QColor, QPen, QIcon
 import sys
 
+
 class HILWidget(QWidget):
-    def __init__(self, num = None):
+    def __init__(self, num=None):
         super().__init__()
-        if num is None: 
+        if num is None:
             self.HILnum = QLabel("NA")
         else:
             self.HILnum = QLabel(num)
-        
+
         self.color = 'w'
-        
+
         # self.speed = QLabel("0")
         self.curDistance = QLabel("0")
         self.curTime = QLabel("0")
@@ -36,7 +42,7 @@ class HILWidget(QWidget):
         testUnit = QLabel("tests")
 
         self.resetButton = QPushButton()
-        self.resetButton.setIconSize(QSize(60,60))
+        self.resetButton.setIconSize(QSize(60, 60))
 
         layout = QGridLayout()
 
@@ -56,11 +62,12 @@ class HILWidget(QWidget):
         # layout.addWidget(sUnit, 3, 3)
         layout.addWidget(self.resetButton, 0, 3)
         self.setLayout(layout)
-        
+
         self.HILnum.setStyleSheet("font: bold 50px")
         # self.testNum.setStyleSheet("font: bold 20px")
-        self.resetButton.setStyleSheet("background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
-        
+        self.resetButton.setStyleSheet(
+            "background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
+
         self.setBackground(self.color)
 
     def paintEvent(self, e):
@@ -70,7 +77,7 @@ class HILWidget(QWidget):
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
 
     def setBackground(self, color):
-        if not color == self.color: 
+        if not color == self.color:
             hilNumColor = "white"
             icon = QIcon('reset_white.png')
             if color == 'r':
@@ -94,9 +101,10 @@ class HILWidget(QWidget):
                 return
 
             self.resetButton.setIcon(icon)
-            self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor + "); } QLabel{ color: " + hilNumColor + "; font: 18px }")
-            self.color = color    
-        
+            self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor +
+                               "); } QLabel{ color: " + hilNumColor + "; font: 18px }")
+            self.color = color
+
 
 def main():
     app = QApplication(sys.argv)
@@ -107,4 +115,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
