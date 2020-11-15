@@ -19,7 +19,7 @@ class HILReader:
         reader = serial.Serial(self.port, 9600)
         while True:
             data = reader.read(size=1)  # revisit
-            self.dataQueue.put(data)
+            self.hilQueue.put(data)
 
 
 class SIMReader:
@@ -30,7 +30,7 @@ class SIMReader:
         for i in range(2):  # range(guiData.numHILs)
             self.HILReaders.append(HILReader(ports[i]))
 
-    def run(self):
+    def read_all(self):
         for i in range(2):
             threading.Thread(
                 target=self.HILReaders[i].run, daemon=True).start()
@@ -42,7 +42,7 @@ class SIMReader:
                     # MATH?
                 except queue.Empty:
                     pass
-
+            # put parsed infor in sim_data
             simQueue.put(sim_data)
 
 

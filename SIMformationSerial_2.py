@@ -5,7 +5,7 @@ Author: Ellen, Mitch, Norm
 Created: Oct. 20, 2020
 Updated: Nov. 8, 2020
 
-Main program; runs SimWidget GUI alongside threads for the data read and 
+Main program; runs SimWidget GUI alongside threads for the data read and
 	parsing unit and queued communications
 """
 
@@ -25,7 +25,7 @@ import sim_widget
 
 GUI_UPDATE_INTERVAL = 1  # how often the gui is updated (seconds)
 
-q = queue.Queue()
+simQueue = queue.Queue()
 # global timerSeqNum
 # timerSeqNum = 0
 loop = Timeloop()
@@ -34,13 +34,15 @@ loop = Timeloop()
 class SerialReceiver:
     def __init__(self):
         self.sim_data = sim_widget.guiData.simData()
+        self.simSeqNum = 0
+        
 
     def csv_reader(self):
         print("CSV_READER")
         with open('sample_data.csv') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
             line_count = 0
-            seqNum = 0
+            simSeqNum = 0
             for row in csv_reader:
                 if line_count != 0:
                     abs_time = row[1]
@@ -48,20 +50,21 @@ class SerialReceiver:
                     speed = row[23]
                     status = row[4]
                     try:
-                        resNum = sw.resetQueue.get(False)
+                        resMsg = sw.resetQueue.get(False)
                         sw.resetQueue.task_done
-                        if resNum == -1:
+                        if resMsg.hil == -1:
                             self.sim_data.reset()
                         else:
-                            self.sim_data.hilDataVec[resNum].reset()
-                        print("RESET RECEIVED: ", resNum)
+                            self.sim_data.hilDataVec[resMsg.hil].reset()
+                        print("RESET RECEIVED: ", resMsg.hil)
+                        print("\tsequence number: ", resMsg.sequence)
                     except queue.Empty:
                         pass
                     self.find_bench(bench, abs_time, speed, status)
-                    self.sim_data.sequence = seqNum
-                    q.put(self.sim_data)  # Add to queue
+                    self.sim_data.sequence = simSeqNum
+                    simQueue.put(self.sim_data)  # Add to queue
+                    simSeqNum += 1
                 line_count += 1
-                seqNum += 1
                 time.sleep(0.01)
 
     def find_bench(self, bench, abs_time, speed, status):
@@ -127,19 +130,19 @@ class SerialReceiver:
                     print("message: %s" % message)
                     print("bench: %s" % bench)
                     try:
-                        resNum = sw.resetQueue.get(False)
+                        resMsg = sw.resetQueue.get(False)
                         sw.resetQueue.task_done
-                        if resNum == -1:
+                        if resMsg.hil == -1:
                             self.sim_data.reset()
                         else:
-                            self.sim_data.hilDataVec[resNum].reset()
-                        print("RESET RECEIVED: ", resNum)
+                            self.sim_data.hilDataVec[resMsg.hil].reset()
+                        print("RESET RECEIVED: ", resMsg.hil)
                     except queue.Empty:
                         pass
                     # no using find_bench funcio right, should put in all valueS
                     # Now, update the benches using the update_benches() function above
                     self.find_bench(bench, message)
-                    q.put(self.sim_data)  # Add to queue
+                    simQueue.put(self.sim_data)  # Add to queue
             readText = ser.readline()  # Once we've updated, read in the next line
 
         # should put in a try-except or finally block for when the program ends (maybe just except keyboard interrupt or sy failure)
@@ -152,33 +155,38 @@ class SerialReceiver:
 def dataReceiver():
     timerPrime = False
     while True:
-        # print("queue length: " , q.qsize())
-        data = q.get()
+        # ***REVISIT - weird stuff from this debug (next 3 lines)
+        # m = simQueue.qsize()
+        # if (m > 0):
+        #     print("queue length (m): ", m)  # DEBUG TEST
+
+        # print("queue length: ", simQueue.qsize()) # DEBUG TEST
+        data = simQueue.get()
         msgType = "data parsing"
-        if data.totTime == -1:
+        if type(data) is sim_widget.guiData.timerMsg:  # data.totTime == -1:
             timerPrime = True
             msgType = "timer"
+            # print("timer sequence number: ", data.sequence)  # DEBUG TEST
         elif timerPrime:
             sw.dataUpdate(data)
             timerPrime = False
-        # print(msgType , "message sequence number: " , data.sequence)
-        q.task_done()
+            # print(msgType, "simData sequence number: ", data.sequence) # DEBUG TEST
+        simQueue.task_done()
 
 
 ################## TIMER CALLBACK TO SEND UPDATE MESSAGE TO GUI DATA QUEUE ######################
 
-@loop.job(interval=timedelta(seconds=GUI_UPDATE_INTERVAL))
+@ loop.job(interval=timedelta(seconds=GUI_UPDATE_INTERVAL))
 def timerCallback():
-    # print("time: " , datetime.now().strftime("%H:%M:%S"))
-    timerMsg = sim_widget.guiData.simData()
-    timerMsg.totTime = -1  # signify a timer message
+    # print("time: ", datetime.now().strftime("%H:%M:%S")) # DEBUG TEST
+    timerMsg = sim_widget.guiData.timerMsg()
     global timerSeqNum
     try:
         timerSeqNum += 1
     except Exception:
-        timerSeqNum = 1
-    timerMsg.sequence = timerSeqNum
-    q.put(timerMsg, False)
+        timerSeqNum = 0
+    timerMsg = sim_widget.guiData.timerMsg(timerSeqNum)
+    simQueue.put(timerMsg, False)
 
 
 ################## MAIN ######################

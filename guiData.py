@@ -37,12 +37,12 @@ class hilData():
 
 
 class simData():
-    def __init__(self):
+    def __init__(self, seqNum=-1):
         self.totDistance = 0
         self.totTime = 0
         self.totTest = 0
         self.hilDataVec = []
-        self.sequence = 0
+        self.sequence = seqNum
 
         for i in range(numHILs):
             hData = hilData()
@@ -51,3 +51,14 @@ class simData():
     def reset(self):
         for i in range(numHILs):
             self.hilDataVec[i].reset()
+
+
+class resetMsg():
+    def __init__(self, resNum=-1, seqNum=-1):
+        self.hil = resNum
+        self.sequence = seqNum
+
+
+class timerMsg():
+    def __init__(self, seqNum=-1):
+        self.sequence = seqNum

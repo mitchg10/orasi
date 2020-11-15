@@ -34,7 +34,7 @@ class SIMWidget(QWidget):
         super().__init__()
 
         self.resetQueue = queue.Queue()
-        self.seqNum = 1
+        self.resSeqNum = 0
 
         if orientation == 'V':
 
@@ -172,8 +172,8 @@ class SIMWidget(QWidget):
             self.hilVec[int(t[0]) - 1].setBackground(t[1])
 
     def resetHandler(self, num=-1):
-        self.resetQueue.put(num)
-        self.seqNum += 1
+        self.resetQueue.put(guiData.resetMsg(num, self.resSeqNum))
+        self.resSeqNum += 1
 
 
 def main():
