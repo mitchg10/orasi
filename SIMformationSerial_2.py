@@ -35,7 +35,6 @@ class SerialReceiver:
     def __init__(self):
         self.sim_data = sim_widget.guiData.simData()
         self.simSeqNum = 0
-        
 
     def csv_reader(self):
         print("CSV_READER")
@@ -51,7 +50,7 @@ class SerialReceiver:
                     status = row[4]
                     try:
                         resMsg = sw.resetQueue.get(False)
-                        sw.resetQueue.task_done
+                        sw.resetQueue.task_done()
                         if resMsg.hil == -1:
                             self.sim_data.reset()
                         else:
@@ -131,7 +130,7 @@ class SerialReceiver:
                     print("bench: %s" % bench)
                     try:
                         resMsg = sw.resetQueue.get(False)
-                        sw.resetQueue.task_done
+                        sw.resetQueue.task_done()
                         if resMsg.hil == -1:
                             self.sim_data.reset()
                         else:

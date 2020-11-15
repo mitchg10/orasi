@@ -5,7 +5,7 @@ import threading
 import serial
 
 import guiData
-# q = queue.Queue()
+
 ports = ['dev/rfcomm0', 'dev/rfcomm1', 'dev/rfcomm2',
          'dev/rfcomm3', 'dev/rfcomm4', 'dev/rfcomm5']
 
@@ -42,6 +42,18 @@ class SIMReader:
                     # MATH?
                 except queue.Empty:
                     pass
+                # check reset queue (once some gui object exists)
+                # try:
+                #     resMsg = sw.resetQueue.get(False)
+                #     sw.resetQueue.task_done
+                #     if resMsg.hil == -1:
+                #         self.sim_data.reset()
+                #     else:
+                #         self.sim_data.hilDataVec[resMsg.hil].reset()
+                #     print("RESET RECEIVED: ", resMsg.hil)
+                #     print("\tsequence number: ", resMsg.sequence)
+                # except queue.Empty:
+                #     pass
             # put parsed infor in sim_data
             simQueue.put(sim_data)
 

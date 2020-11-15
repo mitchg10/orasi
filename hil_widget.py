@@ -5,10 +5,14 @@ Author: Ellen
 Created: May 15, 2020
 Updated: Nov. 6, 2020
 
-PyQt class for individual HIL objects 
+PyQt class for individual HIL objects
 """
 
 import time
+import queue
+import threading
+from datetime import timedelta, datetime
+
 from PyQt5.QtWidgets import (QLabel, QWidget, QSlider, QApplication,
                              QHBoxLayout, QVBoxLayout, QGridLayout,
                              QStyleOption, QStyle, QPushButton)
@@ -25,7 +29,10 @@ class HILWidget(QWidget):
         else:
             self.HILnum = QLabel(num)
 
+        # handle style sheet update and frequency
         self.color = 'w'
+        self.styleQueue = queue.Queue()
+        self.nextStyleCheckTime = datetime.now() + timedelta(seconds=1)
 
         # self.speed = QLabel("0")
         self.curDistance = QLabel("0")
@@ -69,12 +76,24 @@ class HILWidget(QWidget):
             "background-color: rgba(255, 255, 255, 0); border: 0px; outline: 0px")
 
         self.setBackground(self.color)
+        threading.Thread(target=self.styleCheck, daemon=True).start()
 
     def paintEvent(self, e):
         opt = QStyleOption()
         opt.initFrom(self)
         p = QPainter(self)
         self.style().drawPrimitive(QStyle.PE_Widget, opt, p, self)
+
+    def styleCheck(self):
+        while True:
+            if datetime.now() > self.nextStyleCheckTime:
+                try:
+                    color = self.styleQueue.get(False)
+                    self.styleQueue.task_done()
+                    self.setBackground(color)
+                except queue.Empty:
+                    pass
+                self.nextStyleCheckTime = datetime.now() + timedelta(seconds=1)
 
     def setBackground(self, color):
         if not color == self.color:

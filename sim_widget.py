@@ -153,9 +153,11 @@ class SIMWidget(QWidget):
             self.hilVec[i].lifeTest.setText(
                 formatSigs(data.hilDataVec[i].hilLifeTest))
             if data.hilDataVec[i].status == guiData.Status.STANDBY:
-                self.hilVec[i].setBackground('t')
+                # self.hilVec[i].setBackground('t')
+                self.hilVec[i].styleQueue.put('t')
             elif data.hilDataVec[i].status == guiData.Status.RUNNING:
-                self.hilVec[i].setBackground('g')
+                # self.hilVec[i].setBackground('g')
+                self.hilVec[i].styleQueue.put('g')
 
     def changeColor(self):
         t = self.userInput.text()
