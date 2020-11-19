@@ -121,7 +121,7 @@ class HILWidget(QWidget):
 
             self.resetButton.setIcon(icon)
             self.setStyleSheet("HILWidget{ background-color: rgba(" + styleColor +
-                               "); } QLabel{ color: " + hilNumColor + "; font: 18px }")
+                               "); } QLabel{ color: " + hilNumColor + "; font: 18px }")  # bold
             self.color = color
 
 

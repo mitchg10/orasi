@@ -29,12 +29,14 @@ class hilData():
         self.hilLifeDistance = 0
         self.hilLifeTime = 0
         self.hilLifeTest = 0
+        self.newTestFlag = False
 
     def reset(self):
         self.hilCurMPH = 0
         self.hilCurDistance = 0
         self.hilCurTime = 0
         self.hilCurTest = 0
+
 
 class simData():
     def __init__(self, seqNum=-1):

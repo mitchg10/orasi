@@ -23,10 +23,15 @@ import guiData
 
 
 def formatSigs(data):
-    if data > 10000000:
+    if data > 1000000:
         return ('%.2E' % data)
+    elif data > 0.01:
+        # return ('%i' % round(data))
+        return ('%.3g' % data)
+    elif data == 0:
+        return '0'
     else:
-        return ('%i' % round(data))
+        return ('%.2E' % data)
 
 
 class SIMWidget(QWidget):
@@ -65,8 +70,8 @@ class SIMWidget(QWidget):
             self.setLayout(layout)
             self.setWindowTitle("SIMformation Widget")
 
-            self.distance.setStyleSheet("color: white; font: bold 35px")
-            self.time.setStyleSheet("color: white; font: bold 35px")
+            self.distance.setStyleSheet("color: white; font: 35px")  # bold
+            self.time.setStyleSheet("color: white; font: 35px")  # bold
 
         elif orientation == 'H':
 

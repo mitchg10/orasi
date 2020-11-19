@@ -30,7 +30,9 @@ simQueue = queue.Queue()
 # timerSeqNum = 0
 loop = Timeloop()
 
-ports = ['dev/rfcomm0', 'dev/rfcomm1', 'dev/rfcomm2', 'dev/rfcomm3', 'dev/rfcomm4', 'dev/rfcomm5']
+ports = ['dev/rfcomm0', 'dev/rfcomm1', 'dev/rfcomm2',
+         'dev/rfcomm3', 'dev/rfcomm4', 'dev/rfcomm5']
+
 
 class HILReader:
     def __init__(self, port):
@@ -42,6 +44,7 @@ class HILReader:
         while True:
             data = reader.read(size=1)  # revisit
             self.hilQueue.put(data)
+
 
 class SerialReceiver:
     def __init__(self):
@@ -76,7 +79,7 @@ class SerialReceiver:
                     simQueue.put(self.sim_data)  # Add to queue
                     simSeqNum += 1
                 line_count += 1
-                time.sleep(0.01) # This needs to change
+                time.sleep(0.01)  # This needs to change
 
     def find_bench(self, bench, abs_time, speed, status):
         self.current_mph = float(speed)
@@ -86,10 +89,21 @@ class SerialReceiver:
             if bench == bench_str:
                 self.set_bench_vars(i - 1)
                 # set status
-                if status == 'F':
-                    self.sim_data.hilDataVec[i - 1].status = sim_widget.guiData.Status.RUNNING
+                if (status == 'F'
+                        and not self.sim_data.hilDataVec[i - 1].status == sim_widget.guiData.Status.RUNNING):
+                    self.sim_data.hilDataVec[i -
+                                             1].status = sim_widget.guiData.Status.RUNNING
+                    self.sim_data.hilDataVec[i -
+                                             1].hilCurTest += 1
+                    self.sim_data.hilDataVec[i -
+                                             1].hilLifeTest += 1
+                    self.sim_data.totTest += 1
+                elif status == 'F':
+                    self.sim_data.hilDataVec[i -
+                                             1].status = sim_widget.guiData.Status.RUNNING
                 else:
-                    self.sim_data.hilDataVec[i - 1].status = sim_widget.guiData.Status.STANDBY
+                    self.sim_data.hilDataVec[i -
+                                             1].status = sim_widget.guiData.Status.STANDBY
 
     def set_bench_vars(self, bench_number):
         # Get previous data fields
@@ -98,11 +112,16 @@ class SerialReceiver:
         # Set new mph
         self.sim_data.hilDataVec[bench_number].hilCurMPH = self.current_mph
         # Test 2 second delay
-        if (self.current_time - self.sim_data.hilDataVec[bench_number].hilCurTime >= (2/3600)) and (self.sim_data.hilDataVec[bench_number].hilCurDistance > 0):
-            print('NEW TEST FOR BENCH %f'%bench_number)
+        if ((self.sim_data.hilDataVec[bench_number].status == sim_widget.guiData.Status.RUNNING)
+            and (self.current_time -
+                 self.sim_data.hilDataVec[bench_number].hilCurTime >= (2/3600))
+                and self.sim_data.hilDataVec[bench_number].newTestFlag == False):
+            # (self.sim_data.hilDataVec[bench_number].hilCurDistance > 0):
+            print('NEW TEST FOR BENCH %f' % bench_number)
             # Reset bench values
-            self.sim_data.hilDataVec[bench_number].reset()
+            # self.sim_data.hilDataVec[bench_number].reset()
             # Increment tests
+            self.sim_data.hilDataVec[bench_number].newTestFlag = True
             self.sim_data.hilDataVec[bench_number].hilCurTest += 1
             self.sim_data.hilDataVec[bench_number].hilLifeTest += 1
             self.sim_data.totTest += 1
@@ -110,21 +129,25 @@ class SerialReceiver:
             # Set new time
             self.sim_data.hilDataVec[bench_number].hilCurTime = self.current_time
             # Append time
-            self.sim_data.hilDataVec[bench_number].hilLifeTime += (self.current_time - prev_time)
+            self.sim_data.hilDataVec[bench_number].hilLifeTime += (
+                self.current_time - prev_time)
             # Calculate new distances
-            distance_traveled = ((self.current_time - prev_time)*(prev_mph + self.current_mph)/2)
+            distance_traveled = ((self.current_time - prev_time)
+                                 * (prev_mph + self.current_mph)/2)
             self.sim_data.hilDataVec[bench_number].hilCurDistance += distance_traveled
             self.sim_data.hilDataVec[bench_number].hilLifeDistance += distance_traveled
             # Add to overall totals
             self.sim_data.totDistance += distance_traveled
             self.sim_data.totTime += (self.current_time - prev_time)
+            self.sim_data.hilDataVec[bench_number].newTestFlag = False
 
     def serial_reader(self):
         # Setup serial connections
         self.HILReaders = []
         for i in range(2):  # range(guiData.numHILs)
             self.HILReaders.append(HILReader(ports[i]))
-            threading.Thread(target=self.HILReaders[i].read_function, daemon=True).start()
+            threading.Thread(
+                target=self.HILReaders[i].read_function, daemon=True).start()
         # Get new messages from each connection
         while True:
             for i in range(2):
@@ -151,6 +174,7 @@ class SerialReceiver:
                 self.find_bench(bench, message)
 
 ################## FOR RECEIVING DATA FROM THE QUEUE ############################
+
 
 def dataReceiver():
     timerPrime = False
