@@ -25,7 +25,7 @@ from PyQt5.QtWidgets import (QWidget, QApplication)
 import sim_widget
 
 GUI_UPDATE_INTERVAL = 1  # how often the gui is updated (seconds)
-memFile = 'guiMem'
+memFile = 'guiMem'  # memory file for lifetime and overall values
 
 simQueue = queue.Queue()
 # global timerSeqNum
