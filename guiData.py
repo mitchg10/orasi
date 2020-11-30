@@ -3,7 +3,7 @@
 """
 Author: Ellen
 Created: Sep. 20, 2020
-Updated: Nov. 6, 2020
+Updated: Nov. 29, 2020
 
 Classes to hold a package of data to update an entire SimWidget window
 """
@@ -36,6 +36,19 @@ class hilData():
         self.hilCurDistance = 0
         self.hilCurTime = 0
         self.hilCurTest = 0
+        self.status = Status.STANDBY
+        self.NewTestFlag = False
+
+    def copy(self, refHil):
+        self.status = refHil.status
+        self.hilCurMPH = refHil.hilCurMPH
+        self.hilCurDistance = refHil.hilCurDistance
+        self.hilCurTime = refHil.hilCurTime
+        self.hilCurTest = refHil.hilCurTest
+        self.hilLifeDistance = refHil.hilLifeDistance
+        self.hilLifeTime = refHil.hilLifeTime
+        self.hilLifeTest = refHil.hilLifeTest
+        self.newTestFlag = refHil.newTestFlag
 
 
 class simData():
@@ -53,6 +66,15 @@ class simData():
     def reset(self):
         for i in range(numHILs):
             self.hilDataVec[i].reset()
+
+    def copy(self, refSim):
+        self.totDistance = refSim.totDistance
+        self.totTime = refSim.totTime
+        self.totTest = refSim.totTest
+        self.sequence = refSim.sequence
+
+        for h in range(numHILs):
+            self.hilDataVec[h].copy(refSim.hilDataVec[h])
 
 
 class resetMsg():

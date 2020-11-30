@@ -70,8 +70,8 @@ class SIMWidget(QWidget):
             self.setLayout(layout)
             self.setWindowTitle("SIMformation Widget")
 
-            self.distance.setStyleSheet("color: white; font: 35px")  # bold
-            self.time.setStyleSheet("color: white; font: 35px")  # bold
+            self.distance.setStyleSheet("color: white; font: bold 35px")
+            self.time.setStyleSheet("color: white; font: bold 35px")
 
         elif orientation == 'H':
 

@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 
 """
-Author: Ellen, Mitch, Norm
+Author: Ellen, Mitch
 Created: Oct. 20, 2020
-Updated: Nov. 18, 2020
+Updated: Nov. 29, 2020
 
 Main program; runs SimWidget GUI alongside threads for the data read and
 	parsing unit and queued communications
@@ -14,6 +14,7 @@ import queue
 import threading
 import sys
 import csv
+import pickle
 from datetime import timedelta, datetime
 import serial  # Serial connection library - pip3 install pyserial
 from timeloop import Timeloop  # pip3 install timeloop
@@ -24,6 +25,7 @@ from PyQt5.QtWidgets import (QWidget, QApplication)
 import sim_widget
 
 GUI_UPDATE_INTERVAL = 1  # how often the gui is updated (seconds)
+memFile = 'guiMem'
 
 simQueue = queue.Queue()
 # global timerSeqNum
@@ -49,9 +51,18 @@ class HILReader:
 class SerialReceiver:
     def __init__(self):
         self.sim_data = sim_widget.guiData.simData()
+
+        try:
+            filehandler = open(memFile, 'rb')
+            self.sim_data = pickle.load(filehandler)
+            filehandler.close()
+        except FileNotFoundError:
+            print("No memory found, created new memory file " + memFile)
+
         self.simSeqNum = 0
 
     def csv_reader(self):
+        time.sleep(5)
         print("CSV_READER")
         with open('sample_data2.csv') as csv_file:
             csv_reader = csv.reader(csv_file, delimiter=',')
@@ -187,12 +198,23 @@ def dataReceiver():
         # print("queue length: ", simQueue.qsize()) # DEBUG TEST
         data = simQueue.get()
         msgType = "data parsing"
-        if type(data) is sim_widget.guiData.timerMsg:  # data.totTime == -1:
+        if type(data) is sim_widget.guiData.timerMsg:  # timer message
             timerPrime = True
             msgType = "timer"
             # print("timer sequence number: ", data.sequence)  # DEBUG TEST
-        elif timerPrime:
+        elif timerPrime:    # sim data message
+            # update the gui display
             sw.dataUpdate(data)
+
+            # update memory lifetime and overall values
+            memData = sim_widget.guiData.simData()
+            memData.copy(data)
+            memData.reset()  # remove current session values
+            filehandler = open(memFile, 'wb')
+            pickle.dump(memData, filehandler)
+            filehandler.close()
+
+            # un-prime the timer
             timerPrime = False
             # print(msgType, "simData sequence number: ", data.sequence) # DEBUG TEST
         simQueue.task_done()
