@@ -28,8 +28,8 @@ class SIMReader:
         self.read_all()
 
     def read_all(self):
-        for i in range(2):
-            threading.Thread(target=self.HILReaders[i].run, daemon=True).start()
+        for i in range(CONNECTED_ADAPTERS):
+            threading.Thread(target=self.HILReaders[i].read_function, daemon=True).start()
         while True:
             for i in range(CONNECTED_ADAPTERS):
                 try:
