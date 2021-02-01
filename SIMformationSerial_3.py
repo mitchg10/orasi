@@ -241,7 +241,7 @@ def main():
 
     app = QApplication(sys.argv)
     global sw
-    sw = sim_widget.SIMWidget('H')
+    sw = sim_widget.SIMWidget()
     sw.show()
 
     sr = SerialReceiver()

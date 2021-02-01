@@ -8,9 +8,10 @@ Updated: Nov. 29, 2020
 Classes to hold a package of data to update an entire SimWidget window
 """
 
-from enum import Enum  # pip3 install enum
+from enum import Enum
 
-numHILs = 6
+numHILs = 6  # number of hils on display
+guiRatio = (1920, 1080)  # expected resolution of full display screen
 
 
 class Status(Enum):
@@ -42,13 +43,15 @@ class hilData():
     def copy(self, refHil):
         self.status = refHil.status
         self.hilCurMPH = refHil.hilCurMPH
+        self.newTestFlag = refHil.newTestFlag
+
         self.hilCurDistance = refHil.hilCurDistance
         self.hilCurTime = refHil.hilCurTime
         self.hilCurTest = refHil.hilCurTest
+
         self.hilLifeDistance = refHil.hilLifeDistance
         self.hilLifeTime = refHil.hilLifeTime
         self.hilLifeTest = refHil.hilLifeTest
-        self.newTestFlag = refHil.newTestFlag
 
 
 class simData():
