@@ -135,7 +135,7 @@ class SIMWidget(QWidget):
         self.test.setText(formatSigs(data.totTest) + " tests")
 
         for i in range(guiData.numHILs):
-            print("hil number: ", i)
+            #print("hil number: ", i)
             self.hilVec[i].curDistance.setText(
                 formatSigs(data.hilDataVec[i].hilCurDistance))
             self.hilVec[i].curTime.setText(
